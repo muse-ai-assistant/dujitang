@@ -145,28 +145,63 @@ $('next').onclick=pick;
 $('copy').onclick=()=>{if(!cur)return;navigator.clipboard.writeText(cur).then(()=>{const b=$('copy');b.textContent='已复制 ✓';setTimeout(()=>b.textContent='复制',1200)})};
 $('card').onclick=()=>{
   if(!cur)return;
-  const c=document.createElement('canvas');c.width=1080;c.height=1350;
+  const W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;
   const x=c.getContext('2d');
-  const g=x.createLinearGradient(0,0,0,1350);g.addColorStop(0,'#14141a');g.addColorStop(1,'#0d0d10');
-  x.fillStyle=g;x.fillRect(0,0,1080,1350);
-  x.strokeStyle='#a3e635';x.lineWidth=6;x.strokeRect(40,40,1000,1270);
-  x.fillStyle='#a3e635';x.font='bold 64px sans-serif';x.textAlign='center';
-  x.fillText('毒 鸡 汤',540,200);
-  x.fillStyle='#3a3a44';x.font='40px sans-serif';x.fillText('☠',540,280);
-  x.fillStyle='#e8e8ec';x.font='52px "PingFang SC","Microsoft YaHei",sans-serif';
-  wrap(x,cur,540,560,880,84);
-  x.fillStyle='#8a8a96';x.font='36px sans-serif';
-  x.fillText('—— '+CN[cat],540,1180);
-  x.fillStyle='#55555f';x.font='30px sans-serif';x.fillText('笑着喝完 · 认真你就输了',540,1240);
+  // 背景：深紫渐变 + 径向光晕
+  const g=x.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#1b1626');g.addColorStop(.55,'#12101c');g.addColorStop(1,'#0b0a12');
+  x.fillStyle=g;x.fillRect(0,0,W,H);
+  const rg=x.createRadialGradient(W/2,H*0.32,50,W/2,H*0.32,620);
+  rg.addColorStop(0,'rgba(163,230,53,0.07)');rg.addColorStop(1,'rgba(163,230,53,0)');
+  x.fillStyle=rg;x.fillRect(0,0,W,H);
+  // 背景水印大字
+  x.save();x.globalAlpha=0.05;x.fillStyle='#fff';
+  x.font='bold 560px "PingFang SC","Microsoft YaHei",sans-serif';x.textAlign='center';
+  x.fillText('毒',W/2,H*0.62);x.restore();
+  // 双线边框
+  x.strokeStyle='#a3e635';x.lineWidth=3;x.strokeRect(36,36,W-72,H-72);
+  x.strokeStyle='rgba(163,230,53,0.35)';x.lineWidth=1;x.strokeRect(52,52,W-104,H-104);
+  // 顶部标签
+  const tag=' · '+CN[cat]+' · ';
+  x.font='bold 34px "PingFang SC","Microsoft YaHei",sans-serif';
+  const tw=x.measureText(tag).width+64;
+  x.fillStyle='rgba(163,230,53,0.14)';
+  x.beginPath();x.roundRect(W/2-tw/2,108,tw,64,32);x.fill();
+  x.fillStyle='#a3e635';x.textAlign='center';x.fillText(tag,W/2,152);
+  // 装饰引号
+  x.fillStyle='rgba(163,230,53,0.5)';x.font='bold 150px serif';x.fillText('“',W/2,330);
+  // 正文（按长度自适应字号：先按 54px 断行，再定字号重排）
+  const FF='"PingFang SC","Microsoft YaHei",sans-serif';
+  x.font=`500 54px ${FF}`;
+  let lines=splitLines(x,cur,W-320),fs=54;
+  if(lines.length>6){fs=44}else if(lines.length<=3){fs=64}
+  if(fs!==54){x.font=`500 ${fs}px ${FF}`;lines=splitLines(x,cur,W-320)}
+  x.fillStyle='#f2f2f5';
+  x.shadowColor='rgba(0,0,0,0.6)';x.shadowBlur=12;
+  let yy=470;
+  for(const ln of lines){x.fillText(ln,W/2,yy);yy+=fs*1.65}
+  x.shadowBlur=0;
+  // 分隔线
+  const dy=yy+60;
+  x.strokeStyle='rgba(163,230,53,0.4)';x.lineWidth=2;
+  x.beginPath();x.moveTo(W/2-160,dy);x.lineTo(W/2-30,dy);x.moveTo(W/2+30,dy);x.lineTo(W/2+160,dy);x.stroke();
+  x.fillStyle='#a3e635';x.font='30px serif';x.fillText('❦',W/2,dy+10);
+  // 底部品牌
+  x.fillStyle='#a3e635';x.font='bold 44px "PingFang SC","Microsoft YaHei",sans-serif';
+  x.fillText('毒 鸡 汤',W/2,H-220);
+  const d=new Date();
+  x.fillStyle='#6b6b78';x.font='30px "PingFang SC","Microsoft YaHei",sans-serif';
+  x.fillText(`${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()} · 笑着喝完`,W/2,H-160);
   const a=document.createElement('a');a.href=c.toDataURL('image/png');a.download='毒鸡汤.png';a.click();
 };
-function wrap(x,text,cx,y,maxW,lh){
-  const chars=[...text];let line='',yy=y;
+function splitLines(x,text,maxW){
+  const chars=[...text],out=[];let line='';
   for(const ch of chars){
-    if(x.measureText(line+ch).width>maxW){x.fillText(line,cx,yy);line=ch;yy+=lh}
+    if(x.measureText(line+ch).width>maxW){out.push(line);line=ch}
     else line+=ch;
   }
-  x.fillText(line,cx,yy);
+  if(line)out.push(line);
+  return out;
 }
 renderHist();pick();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
