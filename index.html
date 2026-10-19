@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>毒鸡汤 · 扎心语录</title>
+<meta name="description" content="随机扎心语录生成器，打工人/躺平/扎心三类，每日一碗，提神醒脑。">
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#0d0d10">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d0d10;--card:#16161c;--line:#2a2a33;--ink:#e8e8ec;--mut:#8a8a96;--tox:#a3e635;--tox-d:#65a30d;--vio:#c084fc}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;background-image:radial-gradient(ellipse at 50% -10%,rgba(163,230,53,.07),transparent 60%)}
+.wrap{max-width:640px;margin:0 auto;padding:20px 16px 60px}
+header{text-align:center;padding:30px 0 20px}
+header .bowl{font-size:2.6rem;filter:drop-shadow(0 0 18px rgba(163,230,53,.35))}
+header h1{font-size:1.8rem;letter-spacing:.3em;margin-top:8px}
+header h1 span{color:var(--tox)}
+header p{color:var(--mut);font-size:.78rem;margin-top:8px;letter-spacing:.12em}
+.tabs{display:flex;gap:8px;justify-content:center;margin-bottom:16px}
+.tab{border:1px solid var(--line);background:var(--card);color:var(--mut);border-radius:20px;padding:8px 20px;font-size:.85rem;cursor:pointer;letter-spacing:.05em}
+.tab.on{background:var(--tox);color:#0d0d10;border-color:var(--tox);font-weight:700}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:38px 28px;min-height:220px;display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 8px 40px rgba(0,0,0,.5)}
+.card::before{content:"☠";position:absolute;top:12px;left:16px;color:#3a3a44;font-size:1.1rem}
+#quote{font-size:1.25rem;line-height:2;text-align:center;letter-spacing:.03em}
+#quote .cur{display:inline-block;width:2px;height:1.2em;background:var(--tox);vertical-align:-0.2em;animation:blink .8s infinite;margin-left:2px}
+@keyframes blink{50%{opacity:0}}
+.meta{text-align:center;color:var(--mut);font-size:.72rem;margin-top:12px;letter-spacing:.2em}
+.btns{display:flex;gap:10px;justify-content:center;margin-top:22px;flex-wrap:wrap}
+.btn{border:none;border-radius:12px;padding:13px 30px;font-size:1rem;cursor:pointer;letter-spacing:.1em;font-weight:700}
+.btn-p{background:var(--tox);color:#0d0d10;box-shadow:0 0 24px rgba(163,230,53,.35)}
+.btn-p:active{background:var(--tox-d)}
+.btn-g{background:#22222b;color:var(--ink);border:1px solid var(--line);font-weight:500;font-size:.88rem;padding:12px 22px}
+.hist{margin-top:26px}
+.hist h3{font-size:.8rem;color:var(--mut);letter-spacing:.25em;text-align:center;margin-bottom:12px}
+.hist .h{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:.82rem;color:var(--mut);margin-bottom:8px;cursor:pointer}
+.hist .h:hover{color:var(--ink);border-color:var(--tox)}
+.note{font-size:.7rem;color:#55555f;text-align:center;margin-top:26px;line-height:2}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<div class="bowl">🍵</div>
+<h1>毒<span>鸡</span>汤</h1>
+<p>每日一碗 · 提神醒脑 · 扎心不扎肺</p>
+</header>
+<div class="tabs">
+<button class="tab on" data-c="dagong">打工人</button>
+<button class="tab" data-c="tangping">躺平</button>
+<button class="tab" data-c="zhaxin">扎心</button>
+</div>
+<div class="card"><div id="quote"></div></div>
+<div class="meta" id="qmeta"></div>
+<div class="btns">
+<button class="btn btn-p" id="next">再来一碗 🍵</button>
+<button class="btn btn-g" id="copy">复制</button>
+<button class="btn btn-g" id="card">生成卡片图</button>
+</div>
+<div class="hist"><h3>喝过的心灵砒霜</h3><div id="hlist"></div></div>
+<p class="note">本产品纯属娱乐，笑着喝完，认真你就输了。<br>毒鸡汤虽好，可不要贪杯哦。</p>
+</div>
+<script>
+const QUOTES={
+dagong:[
+"早上好打工人，今天的砖格外烫手。",
+"工资条和大姨妈一样准时，也一样留不住。",
+"老板说公司是我家，我问：那能分房吗？",
+"周一的解药是周五，可惜药效只有两天。",
+"你的努力KPI看不见，但你的黑眼圈看得见。",
+"开会的意义：让所有人一起浪费时间，谁也不欠谁。",
+"涨薪靠跳槽，加薪靠玄学。",
+"打工三件套：早起，搬砖，失眠。",
+"梦想还是要有的，万一实现了呢——比如准时下班。",
+"996是福报，我选择不要这福气。",
+"工资撑不起购物车，但撑得起花呗账单。",
+"周五晚上的快乐，是打工人最后的体面。",
+"摸鱼的时候，时间过得比发工资还快。",
+"带薪如厕，是打工人最后的自由。"
+],
+tangping:[
+"躺平不是放弃，是发现跑道是个圈。",
+"卷又卷不赢，躺又躺不平，那就躺着卷。",
+"别人内卷我围观，快乐加倍。",
+"躺平一时爽，一直躺平一直爽。",
+"不是不努力，是努力和结果之间差了个运气。",
+"人生苦短，及时行乐。",
+"躺平不是摆烂，是给灵魂放个假。",
+"卷王卷的是KPI，我卷的是被窝。",
+"与其焦虑到失眠，不如躺平到天亮。",
+"躺平的最高境界：心安理得，理直气壮。",
+"努力不一定成功，但休息一定舒服。",
+"世界那么大，我想躺着看。",
+"佛系的精髓：不争，但也不服输——服的是床。",
+"躺平青年守则第一条：天塌下来先睡一觉。"
+],
+zhaxin:[
+"你不是没时间，你只是把时间都给了手机。",
+"存钱如便秘，花钱如腹泻。",
+"你的计划列表很长，行动力很短。",
+"别说来日方长，体检报告可不等人。",
+"熬最晚的夜，敷最贵的面膜，掉最多的头发。",
+"减肥的决心，败给了夜宵的香味。",
+"你不是选择困难，你是既要又要还要。",
+"生活不止眼前的苟且，还有明天的苟且。",
+"梦想很丰满，现实很骨感，体重很诚实。",
+"年轻时用命换钱，年老时用钱换命。",
+"别人的朋友圈是诗和远方，你的是拼单和砍价。",
+"你以为的自律是早睡早起，实际是早睡早起地刷手机。",
+"工资涨得比体重慢，是打工人最后的倔强。",
+"你删掉的不是APP，是自律；你留下的不是回忆，是缓存。"
+]};
+const CN={dagong:'打工人',tangping:'躺平',zhaxin:'扎心'};
+let cat='dagong',cur='',hist=[];
+const $=id=>document.getElementById(id);
+try{hist=JSON.parse(localStorage.getItem('djt-h')||'[]')}catch(e){hist=[]}
+
+function pick(){
+  const arr=QUOTES[cat];
+  let q;do{q=arr[Math.floor(Math.random()*arr.length)]}while(arr.length>1&&q===cur);
+  cur=q;typewrite(q);
+  $('qmeta').textContent='—— '+CN[cat]+' · 第'+(hist.length+1)+'碗';
+  hist.unshift(q);hist=hist.slice(0,12);
+  try{localStorage.setItem('djt-h',JSON.stringify(hist))}catch(e){}
+  renderHist();
+}
+function typewrite(t){
+  const el=$('quote');el.innerHTML='';let i=0;
+  clearInterval(el._tm);
+  el._tm=setInterval(()=>{
+    el.innerHTML=esc(t.slice(0,++i))+'<span class="cur"></span>';
+    if(i>=t.length){clearInterval(el._tm);el.innerHTML=esc(t)}
+  },70);
+}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function renderHist(){
+  $('hlist').innerHTML=hist.map(h=>'<div class="h">'+esc(h)+'</div>').join('')||'<div class="h" style="text-align:center">还没有喝过，快来一碗</div>';
+  document.querySelectorAll('.h').forEach(d=>d.onclick=()=>{if(d.textContent.includes('还没有'))return;cur=d.textContent;typewrite(cur)});
+}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on');cat=t.dataset.c;pick();
+});
+$('next').onclick=pick;
+$('copy').onclick=()=>{if(!cur)return;navigator.clipboard.writeText(cur).then(()=>{const b=$('copy');b.textContent='已复制 ✓';setTimeout(()=>b.textContent='复制',1200)})};
+$('card').onclick=()=>{
+  if(!cur)return;
+  const c=document.createElement('canvas');c.width=1080;c.height=1350;
+  const x=c.getContext('2d');
+  const g=x.createLinearGradient(0,0,0,1350);g.addColorStop(0,'#14141a');g.addColorStop(1,'#0d0d10');
+  x.fillStyle=g;x.fillRect(0,0,1080,1350);
+  x.strokeStyle='#a3e635';x.lineWidth=6;x.strokeRect(40,40,1000,1270);
+  x.fillStyle='#a3e635';x.font='bold 64px sans-serif';x.textAlign='center';
+  x.fillText('毒 鸡 汤',540,200);
+  x.fillStyle='#3a3a44';x.font='40px sans-serif';x.fillText('☠',540,280);
+  x.fillStyle='#e8e8ec';x.font='52px "PingFang SC","Microsoft YaHei",sans-serif';
+  wrap(x,cur,540,560,880,84);
+  x.fillStyle='#8a8a96';x.font='36px sans-serif';
+  x.fillText('—— '+CN[cat],540,1180);
+  x.fillStyle='#55555f';x.font='30px sans-serif';x.fillText('笑着喝完 · 认真你就输了',540,1240);
+  const a=document.createElement('a');a.href=c.toDataURL('image/png');a.download='毒鸡汤.png';a.click();
+};
+function wrap(x,text,cx,y,maxW,lh){
+  const chars=[...text];let line='',yy=y;
+  for(const ch of chars){
+    if(x.measureText(line+ch).width>maxW){x.fillText(line,cx,yy);line=ch;yy+=lh}
+    else line+=ch;
+  }
+  x.fillText(line,cx,yy);
+}
+renderHist();pick();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body>
+</html>
